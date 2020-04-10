@@ -4,10 +4,11 @@ import zipfile
 
 
 DESIRED_ACCURACY = 0.999
-
+"""
 !wget --no-check-certificate \
     "https://storage.googleapis.com/laurencemoroney-blog.appspot.com/happy-or-sad.zip" \
     -O "/tmp/happy-or-sad.zip"
+"""
 
 zip_ref = zipfile.ZipFile("/tmp/happy-or-sad.zip", 'r')
 zip_ref.extractall("/tmp/h-or-s")
