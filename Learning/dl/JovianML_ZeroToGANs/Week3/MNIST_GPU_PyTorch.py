@@ -10,7 +10,7 @@ dataset = torchvision.datasets.MNIST(root='data/', download=True, transform=torc
 val_size = 10000
 train_size = len(dataset) - val_size
 
-train_ds, val_ds = random_split([train_size, val_size])
+train_ds, val_ds = random_split(dataset, (train_size, val_size))
 
 batch_size = 128
 
@@ -68,10 +68,10 @@ def get_default_device():
 
 
 device = get_default_device()
-
+print(device)
 
 def to_device(data, device):
-    if isinstance(data, [list, tuple]):
+    if isinstance(data, (list, tuple)):
         return [to_device(x, device) for x in data]
     return data.to(device, non_blocking=True)
 
@@ -83,7 +83,7 @@ class DeviceDataLdr():
 
     def __iter__(self):
         for batch in self.dataldr:
-            yield.to_device(batch, self.device)
+            yield to_device(batch, self.device)
 
 
 def eval_model(model, val_dataldr):
@@ -96,7 +96,7 @@ def fit(epochs, lr, model, train_dataldr, val_dataldr, optim=torch.optim.SGD):
     optimizer = optim(model.parameters(), lr)
     history = []
 
-    for epoch in epochs:
+    for epoch in range(epochs):
         for batch in train_dataldr:
             loss = model.train_step(batch)
 
@@ -111,7 +111,7 @@ def fit(epochs, lr, model, train_dataldr, val_dataldr, optim=torch.optim.SGD):
 
 to_device(model, device)
 
-history = fit(epochs=100, lr=1e-7, model, train_dataldr, val_dataldr)
+history = fit(epochs=100, lr=1e-7, model=model, train_dataldr=train_dataldr, val_dataldr=val_dataldr)
 
 losses = [x['val_loss'] for x in history]
 plt.plot(losses, '-x')

@@ -27,6 +27,7 @@ def accuracy(outputs, targets):
 
 class FMnistModel(torch.nn.Module):
     def __init__(self, in_size, hidden_units, out_size):
+        super().__init__()
         self.linear1 = torch.nn.Linear(in_size, hidden_units)
         self.linear2 = torch.nn.Linear(hidden_units, out_size)
 
@@ -61,11 +62,11 @@ def eval_model(model, val_dataldr):
     val_losses = [model.val_step(batch) for batch in val_dataldr]
     return val_losses
 
-def fit(epochs, lr=1e-7, model, training_dataldr, val_dataldr, optim=torch.optim.SGD):
+def fit(epochs, lr, model, training_dataldr, val_dataldr, optim=torch.optim.SGD):
     history = []
     optimizer = optim(model.parameters(), lr)
 
-    for epoch in epochs:
+    for epoch in range(epochs):
         for batch in training_dataldr:
             training_loss = model.training_step(batch)
             training_loss.backward()
@@ -110,8 +111,9 @@ train_dataldr = DeviceDataLdr(train_dataldr, device)
 val_dataldr = DeviceDataLdr(val_dataldr, device)
 
 to_device(model, device)
+history = []
 
-history += fit(epochs=100, lr=1e-7, model, train_dataldr, val_dataldr)
+history += fit(epochs=100, lr=1e-7, model=model, training_dataldr=train_dataldr, val_dataldr=val_dataldr)
 
 losses = [x['val_loss'] for x in history]
 plt.plot(losses, '-x')
