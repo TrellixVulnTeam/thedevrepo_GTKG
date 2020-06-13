@@ -4,6 +4,9 @@
     - ML
         - Hands on ML with Scikit Learn
         - Coursera: Tensorflow in Practice Specialization
+    - DL
+        - PyTorch ZeroToGANs (JovianML + Freecodecamp.org)
+        - Hands on ML with Tensorflow (pending commits)
 - Hackerrank files
 - Machine Hack challenges
     - [Bengaluru House Price Prediction](https://www.machinehack.com/course/predicting-house-prices-in-bengaluru/)
