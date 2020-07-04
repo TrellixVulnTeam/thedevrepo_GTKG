@@ -1,10 +1,10 @@
-import torch
-import torchvision
 import jovian
 import matplotlib.pyplot as plt
+import torch
 import torch.nn.functional as F
-from torchvision.datasets import MNIST
+import torchvision
 from torch.utils.data import random_split, DataLoader
+from torchvision.datasets import MNIST
 
 batch_size = 128
 learning_rate = 5e-7
@@ -99,14 +99,13 @@ def fit_model(model, epochs, learning_rate, train_loader, val_loader, optim=torc
 
     return history
 
+
 def eval_model(model, val_loader):
     out = [model.validation_step(batch) for batch in val_loader]
     return model.validation_epoch_end(out)
 
 
-
 history = fit_model(model, 30, learning_rate, train_loader, val_loader)
-
 
 val_acc = [result['val_acc'] for result in history]
 plt.plot(val_acc, '-x')
@@ -123,12 +122,13 @@ jovian.log_metrics(test_acc=test_set_results['val_acc'], test_loss=test_set_resu
 def get_prediction(x, model):
     xb = x.unsquezze(0)
     yb = model(xb)
-    _, preds  = torch.max(yb, dim=1)
+    _, preds = torch.max(yb, dim=1)
     return preds[0].item()
+
 
 some_random_digit, some_random_lbl = test_ds[123]
 plt.imshow(some_random_digit[0], cmap='gray')
-print('Prediction: {}, Target: {}'.format(get_prediction(some_random_digit, model), some_random_lbl) )
+print('Prediction: {}, Target: {}'.format(get_prediction(some_random_digit, model), some_random_lbl))
 
 torch.save(model.state_dict(), 'mnist_logistic.pth')
 jovian.commit(project='mnist-classification', environment=None, outputs=['mnist-logisitc.pth'])

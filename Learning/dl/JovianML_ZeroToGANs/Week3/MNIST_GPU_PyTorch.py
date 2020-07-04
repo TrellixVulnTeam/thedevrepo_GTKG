@@ -1,9 +1,9 @@
-import torch
-import torchvision
-import torch.nn.functional as F
-from torch.utils.data.dataloader import DataLoader
-from torch.utils.data import random_split
 import matplotlib.pyplot as plt
+import torch
+import torch.nn.functional as F
+import torchvision
+from torch.utils.data import random_split
+from torch.utils.data.dataloader import DataLoader
 
 dataset = torchvision.datasets.MNIST(root='data/', download=True, transform=torchvision.transforms.ToTensor())
 
@@ -17,13 +17,15 @@ batch_size = 128
 train_dataldr = DataLoader(dataset, batch_size, shuffle=True, num_workers=4, pin_memory=True)
 val_dataldr = DataLoader(dataset, batch_size, shuffle=False, num_workers=4, pin_memory=True)
 
-input_size = 28*28
+input_size = 28 * 28
 num_cls = 10
 hidden_size = 64
+
 
 def accuracy(outputs, targets):
     _, preds = torch.max(outputs, dim=1)
     return torch.tensor(torch.sum(preds == targets).item() / len(preds))
+
 
 class MnistModel(torch.nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -70,6 +72,7 @@ def get_default_device():
 device = get_default_device()
 print(device)
 
+
 def to_device(data, device):
     if isinstance(data, (list, tuple)):
         return [to_device(x, device) for x in data]
@@ -92,7 +95,6 @@ def eval_model(model, val_dataldr):
 
 
 def fit(epochs, lr, model, train_dataldr, val_dataldr, optim=torch.optim.SGD):
-
     optimizer = optim(model.parameters(), lr)
     history = []
 
@@ -108,6 +110,7 @@ def fit(epochs, lr, model, train_dataldr, val_dataldr, optim=torch.optim.SGD):
 
         history.append(result)
     return history
+
 
 to_device(model, device)
 

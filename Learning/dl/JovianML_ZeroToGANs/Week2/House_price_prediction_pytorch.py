@@ -1,13 +1,12 @@
 # !pip install jovian --upgrade --quieta
 
-import torch
-import torchvision
 import jovian
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import torch
 import torch.nn.functional as F
-from torchvision.datasets.utils import download_url
 from torch.utils.data import DataLoader, TensorDataset, random_split
+from torchvision.datasets.utils import download_url
 
 # Hyperparams
 batch_size = 64
@@ -118,7 +117,7 @@ def get_prediction(x, model):
     return model(xb).item()
 
 
-x,y = val_ds[10]
+x, y = val_ds[10]
 y_pred = get_prediction(x, model)
 
 print("Prediction: {}, Target: {}".format(y_pred, y))
@@ -126,4 +125,3 @@ print("Prediction: {}, Target: {}".format(y_pred, y))
 torch.save(model.state_dict(), 'artifacts/housing_linear.pth')
 
 jovian.commit(project='housing-price-prediction', environment=None, outputs=['housing_linear.pth'])
-
