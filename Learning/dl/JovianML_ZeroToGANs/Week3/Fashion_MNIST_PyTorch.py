@@ -1,19 +1,19 @@
-import torch
-import torchvision
 import matplotlib.pyplot as plt
+import torch
 import torch.nn.functional as F
-from torchvision.datasets import FashionMNIST
+import torchvision
 from torch.utils.data import random_split
 from torch.utils.data.dataloader import DataLoader
+from torchvision.datasets import FashionMNIST
 
 fmnist = FashionMNIST(root='data/', download=True, transform=torchvision.transforms.ToTensor)
 
-val_size=10000
-train_size=len(fmnist) - val_size
+val_size = 10000
+train_size = len(fmnist) - val_size
 
 train_ds, val_ds = random_split(fmnist, [train_size, val_size])
 
-input_size = 28*28
+input_size = 28 * 28
 hidden_size = 64
 num_cls = 10
 batch_size = 64
@@ -21,9 +21,11 @@ batch_size = 64
 train_dataldr = DataLoader(fmnist, batch_size, shuffle=True, num_workers=4, pin_memory=True)
 val_dataldr = DataLoader(fmnist, batch_size, shuffle=True, num_workers=4, pin_memory=True)
 
+
 def accuracy(outputs, targets):
     _, pred = torch.max(outputs, dim=1)
     return torch.tensor(torch.sum(pred == targets).item() / len(pred))
+
 
 class FMnistModel(torch.nn.Module):
     def __init__(self, in_size, hidden_units, out_size):
@@ -53,14 +55,16 @@ class FMnistModel(torch.nn.Module):
 
         val_acc = accuracy(y_pred, y_val)
 
-        return {'val_loss':val_loss.detach(), 'val_acc':val_acc.item()}
+        return {'val_loss': val_loss.detach(), 'val_acc': val_acc.item()}
 
 
 model = FMnistModel(input_size, hidden_size, num_cls)
 
+
 def eval_model(model, val_dataldr):
     val_losses = [model.val_step(batch) for batch in val_dataldr]
     return val_losses
+
 
 def fit(epochs, lr, model, training_dataldr, val_dataldr, optim=torch.optim.SGD):
     history = []
@@ -80,6 +84,7 @@ def fit(epochs, lr, model, training_dataldr, val_dataldr, optim=torch.optim.SGD)
 
     return history
 
+
 # PENDING --  device assignment and run !
 def get_default_device():
     if torch.cuda.is_available():
@@ -87,15 +92,17 @@ def get_default_device():
     else:
         return torch.device('cpu')
 
+
 def to_device(data, device):
     if isinstance(data, (list, tuple)):
         return [to_device(x, device) for x in data]
     return data.to(device, non_blocking=True)
 
+
 class DeviceDataLdr():
     def __init__(self, dataldr, device):
         self.dataldr = dataldr
-        self.device  = device
+        self.device = device
 
     def __iter__(self):
         for batch in self.dataldr:
@@ -128,11 +135,10 @@ plt.ylabel('acc')
 plt.title('Accuracy vs. No. of epochs');
 
 
-
 def predict_image(img, model):
     xb = to_device(img.unsqueeze(0), device)
     yb = model(xb)
-    _, preds  = torch.max(yb, dim=1)
+    _, preds = torch.max(yb, dim=1)
     return preds[0].item()
 
 
