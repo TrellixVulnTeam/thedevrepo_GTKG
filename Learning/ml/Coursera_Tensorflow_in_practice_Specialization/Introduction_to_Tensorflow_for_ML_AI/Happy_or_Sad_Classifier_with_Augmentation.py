@@ -33,7 +33,7 @@ tf.keras.layers.Conv2D(64,(3,3),activation='relu'),
 tf.keras.layers.MaxPooling2D((2,2)),
 tf.keras.layers.Flatten(),
 tf.keras.layers.Dense(128, activation='relu'),
-tf.keras.layers.Dense(2, activation='sigmoid')
+tf.keras.layers.Dense(1, activation='sigmoid')
 ])
 
 from tensorflow.keras.optimizers import RMSprop
@@ -59,7 +59,7 @@ train_generator = train_datagen.flow_from_directory(
 
 history = model.fit(
     train_generator,
-    steps_per_epoch=8,
+    steps_per_epoch=1,
     epochs=100,
     verbose=2,
     callbacks=[callbacks]

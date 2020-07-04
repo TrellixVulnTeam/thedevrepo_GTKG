@@ -6,7 +6,7 @@ mnist = tf.keras.datasets.mnist
 class CustomCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         if(logs.get('accuracy') >= 0.99):
-            print("\nExceeding accuracy of 99$...stopping training...\n")
+            print("\nExceeding accuracy of 99%...stopping training...\n")
             self.model.stop_training = True
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
