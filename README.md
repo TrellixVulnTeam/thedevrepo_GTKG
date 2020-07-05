@@ -8,6 +8,10 @@
         - PyTorch ZeroToGANs (JovianML + Freecodecamp.org)
         - Hands on ML with Tensorflow (pending commits)
 - Hackerrank files
+- Kaggle
+    - Kernels (self)
+        - Kannada MNIST
+        - Drug Review Condition (SpaCy)
 - Machine Hack challenges
     - [Bengaluru House Price Prediction](https://www.machinehack.com/course/predicting-house-prices-in-bengaluru/)
     - [Flight Ticket Price Prediction](https://www.machinehack.com/course/predict-the-flight-ticket-price-hackathon/)
