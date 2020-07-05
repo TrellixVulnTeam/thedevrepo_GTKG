@@ -1,10 +1,11 @@
 import os
-import zipfile
 import random
+import zipfile
+from shutil import copyfile
+
 import tensorflow as tf
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from shutil import copyfile
 
 """
 !wget --no-check-certificate \
@@ -70,73 +71,87 @@ print(len(os.listdir('/tmp/cats-v-dogs/training/dogs/')))
 print(len(os.listdir('/tmp/cats-v-dogs/testing/cats/')))
 print(len(os.listdir('/tmp/cats-v-dogs/testing/dogs/')))
 
-input_shape = (150,150,3)
+input_shape = (150, 150, 3)
 num_cls = 1
 
 # USE AT LEAST 3 CONVOLUTION LAYERS
 model = tf.keras.models.Sequential([
-      tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=input_shape),
-      tf.keras.layers.MaxPooling2D((2,2)),
-      tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-      tf.keras.layers.MaxPooling2D((2,2)),
-      tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
-      tf.keras.layers.MaxPooling2D((2,2)),
-      tf.keras.layers.Flatten(),
-      tf.keras.layers.Dense(256, activation='relu'),
-      tf.keras.layers.Dense(num_cls,activation='sigmoid')
+    tf.keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=input_shape),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(256, activation='relu'),
+    tf.keras.layers.Dense(num_cls, activation='sigmoid')
 ])
 
 model.compile(optimizer=RMSprop(lr=0.001), loss='binary_crossentropy', metrics=['accuracy'])
 
 TRAINING_DIR = '/tmp/cats-v-dogs/training/'
-train_datagen = ImageDataGenerator(rescale=1/255.)
+train_datagen = ImageDataGenerator(rescale=1 / 255.,
+                                   rotation_range=40,
+                                   width_shift_range=0.3,
+                                   height_shift_range=0.2,
+                                   shear_range=0.3,
+                                   zoom_range=0.2,
+                                   horizontal_flip=True,
+                                   fill_mode='nearest')
 train_generator = train_datagen.flow_from_directory(TRAINING_DIR,
                                                     class_mode='binary',
                                                     batch_size=128,
-                                                    target_size=(150,150))
+                                                    target_size=(150, 150))
 
 VALIDATION_DIR = '/tmp/cats-v-dogs/testing/'
-validation_datagen = ImageDataGenerator(rescale=1/255.)
+validation_datagen = ImageDataGenerator(rescale=1 / 255.,
+                                        rotation_range=40,
+                                        width_shift_range=0.3,
+                                        height_shift_range=0.2,
+                                        shear_range=0.3,
+                                        zoom_range=0.2,
+                                        horizontal_flip=True,
+                                        fill_mode='nearest'
+                                        )
 validation_generator = validation_datagen.flow_from_directory(VALIDATION_DIR,
                                                               class_mode='binary',
                                                               batch_size=128,
-                                                              target_size=(150,150))
+                                                              target_size=(150, 150))
 
 history = model.fit(train_generator,
-                              epochs=15,
-                              verbose=2,
-                              validation_data=validation_generator)
+                    epochs=15,
+                    verbose=2,
+                    validation_data=validation_generator)
 
 # PLOT LOSS AND ACCURACY
-%matplotlib inline
+% matplotlib
+inline
 
-import matplotlib.image  as mpimg
 import matplotlib.pyplot as plt
 
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # Retrieve a list of list results on training and test data
 # sets for each training epoch
-#-----------------------------------------------------------
-acc=history.history['accuracy']
-val_acc=history.history['val_accuracy']
-loss=history.history['loss']
-val_loss=history.history['val_loss']
+# -----------------------------------------------------------
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
 
-epochs=range(len(acc)) # Get number of epochs
+epochs = range(len(acc))  # Get number of epochs
 
-#------------------------------------------------
+# ------------------------------------------------
 # Plot training and validation accuracy per epoch
-#------------------------------------------------
+# ------------------------------------------------
 plt.plot(epochs, acc, 'r', "Training Accuracy")
 plt.plot(epochs, val_acc, 'b', "Validation Accuracy")
 plt.title('Training and validation accuracy')
 plt.figure()
 
-#------------------------------------------------
+# ------------------------------------------------
 # Plot training and validation loss per epoch
-#------------------------------------------------
+# ------------------------------------------------
 plt.plot(epochs, loss, 'r', "Training Loss")
 plt.plot(epochs, val_loss, 'b', "Validation Loss")
-
 
 plt.title('Training and validation loss')
