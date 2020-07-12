@@ -16,24 +16,6 @@ dataset
 	to search for the right learning rate each time you change
 	the model’s architecture or hyperparameters.
 
-	c. Now try adding Batch Normalization and compare the
-	learning curves: Is it converging faster than before? Does
-	it produce a better model? How does it affect training
-	speed?
-
-	d. Try replacing Batch Normalization with SELU, and make
-	the necessary adjustements to ensure the network self-
-	normalizes (i.e., standardize the input features, use
-	LeCun normal initialization, make sure the DNN contains
-	only a sequence of dense layers, etc.).
-
-	e. Try regularizing the model with alpha dropout. Then,
-	without retraining your model, see if you can achieve
-	better accuracy using MC Dropout.
-
-	f. Retrain your model using 1cycle scheduling and see if it
-	improves training speed and model accuracy.
-
 """
 
 import tensorflow as tf
@@ -56,17 +38,89 @@ epochs = 20
 
 print(img_dims)
 
-dnn_100_model = tf.keras.models.Sequential()
-dnn_100_model.add(tf.keras.layers.Flatten(input_shape=img_dims))
+###################################################################
+dnn_model = tf.keras.models.Sequential()
+dnn_model.add(tf.keras.layers.Flatten(input_shape=img_dims))
 
 for _ in range(num_layers):
-    dnn_100_model.add(tf.keras.layers.Dense(units=num_units, activation='elu', kernel_initializer='he_uniform'))
+    dnn_model.add(tf.keras.layers.Dense(units=num_units, activation='elu', kernel_initializer='he_uniform'))
 
-dnn_100_model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
-dnn_100_model.compile(optimizer=tf.keras.optimizers.Nadam(), loss='categorical_crossentropy', metrics=['accuracy'])
+dnn_model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
+dnn_model.compile(optimizer=tf.keras.optimizers.Nadam(), loss='categorical_crossentropy', metrics=['accuracy'])
 
-print(dnn_100_model.summary())
+print(dnn_model.summary())
 
-history = dnn_100_model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, validation_data=(X_test, y_test),
-                            callbacks=[tf.keras.callbacks.EarlyStopping(patience=3, restore_best_weights=True)],
-                            verbose=2)
+history = dnn_model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, validation_data=(X_test, y_test),
+                        callbacks=[tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)],
+                        verbose=2)
+
+"""
+
+
+	c. Now try adding Batch Normalization and compare the
+	learning curves: Is it converging faster than before? Does
+	it produce a better model? How does it affect training
+	speed?
+
+"""
+###################################################################
+# Adding batch normalization to the top 3 layers only.
+
+bn_model = tf.keras.models.Sequential()
+bn_model.add(tf.keras.layers.Flatten(input_shape=img_dims))
+
+for _ in range(num_layers - 2):
+    bn_model.add(tf.keras.layers.Dense(units=num_units, activation='elu', kernel_initializer='he_uniform'))
+
+bn_model.add(tf.keras.layers.BatchNormalization())
+bn_model.add(tf.keras.layers.Dense(units=num_units, kernel_initializer='he_uniform', activation='elu'))
+bn_model.add(tf.keras.layers.BatchNormalization())
+bn_model.add(tf.keras.layers.Dense(units=num_units, kernel_initializer='he_uniform', activation='elu'))
+bn_model.add(tf.keras.layers.BatchNormalization())
+bn_model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
+
+bn_model.compile(optimizer=tf.keras.optimizers.Nadam(), loss='categorical_crossentropy', metrics=['accuracy'])
+
+print(bn_model.summary())
+
+bn_history = bn_model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs,
+                          validation_data=(X_test, y_test),
+                          callbacks=[tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)],
+                          verbose=2)
+
+"""
+
+	d. Try replacing Batch Normalization with SELU, and make
+	the necessary adjustements to ensure the network self-
+	normalizes (i.e., standardize the input features, use
+	LeCun normal initialization, make sure the DNN contains
+	only a sequence of dense layers, etc.).
+
+
+"""
+selu_model = tf.keras.models.Sequential()
+
+selu_model.add(tf.keras.layers.Flatten(input_shape=img_dims))
+selu_model.add(tf.keras.layers.BatchNormalization())
+
+for _ in range(num_layers):
+    selu_model.add(tf.keras.layers.Dense(units=num_units, activation='selu', kernel_initializer='lecun_normal'))
+
+selu_model.compile(optimizer=tf.keras.optimizers.Nadam(), loss='categorical_crossentropy', metrics=['accuracy'])
+
+print(selu_model.summary())
+
+selu_history = selu_model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs,
+                              validation_data=(X_test, y_test),
+                              callbacks=[tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)],
+                              verbose=2)
+"""
+
+	e. Try regularizing the model with alpha dropout. Then,
+	without retraining your model, see if you can achieve
+	better accuracy using MC Dropout.
+
+	f. Retrain your model using 1cycle scheduling and see if it
+	improves training speed and model accuracy.
+	
+"""
