@@ -119,8 +119,37 @@ selu_history = selu_model.fit(X_train, y_train, batch_size=batch_size, epochs=ep
 	e. Try regularizing the model with alpha dropout. Then,
 	without retraining your model, see if you can achieve
 	better accuracy using MC Dropout.
+	
+"""
+selu_dropout_model = tf.keras.models.Sequential()
 
+selu_dropout_model.add(tf.keras.layers.Flatten(input_shape=img_dims))
+
+for _ in range(num_layers):
+    selu_dropout_model.add(tf.keras.layers.Dense(units=num_units, activation='selu', kernel_initializer='lecun_normal'))
+
+selu_dropout_model.add(tf.keras.layers.AlphaDropout(rate=0.1))
+selu_dropout_model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
+
+selu_dropout_model.compile(optimizer=tf.keras.optimizers.Nadam(lr=5e-5), loss='categorical_crossentropy',
+                           metrics=['accuracy'])
+
+print(selu_dropout_model.summary())
+
+selu_dropout_history = selu_dropout_model.fit(X_train_scaled, y_train, batch_size=batch_size, epochs=epochs,
+                                              validation_data=(X_test_scaled, y_test),
+                                              callbacks=[tf.keras.callbacks.EarlyStopping(patience=7,
+                                                                                          restore_best_weights=True)],
+                                              verbose=2)
+
+# Pending MC Dropout.
+
+pd.DataFrame(selu_dropout_history.history).plot(figsize=(8, 5))
+plt.grid(True)
+plt.gca().set_ylim(0, 1)  # set the vertical range to [0-1]
+plt.show()
+
+"""
 	f. Retrain your model using 1cycle scheduling and see if it
 	improves training speed and model accuracy.
-	
 """
