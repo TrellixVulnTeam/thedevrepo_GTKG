@@ -30,8 +30,8 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(10, activation="softmax")
 ])
 
-epochs = 10
-batch_size = 64
+epochs = 5
+batch_size = 32
 train_steps = len(X_train) // batch_size
 optimizer = tf.keras.optimizers.Nadam(lr=0.001)
 loss = tf.keras.losses.SparseCategoricalCrossentropy()
